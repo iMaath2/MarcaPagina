@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "890271936662",
+    "project_id": "marcapagina-4b23a",
+    "storage_bucket": "marcapagina-4b23a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:890271936662:android:80dc87f5090a2069fcd2b7",
+        "android_client_info": {
+          "package_name": "com.ifpe.recife.marcapagina"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRv7w5G-RKUum3_-OY1hBcmeL8pFLF6po"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
