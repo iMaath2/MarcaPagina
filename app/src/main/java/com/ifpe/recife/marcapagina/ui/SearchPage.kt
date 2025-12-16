@@ -1,6 +1,7 @@
 package com.ifpe.recife.marcapagina.ui
 
-import androidx.compose.foundation.background
+import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,14 +25,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ifpe.recife.marcapagina.data.model.BookDto
+import com.ifpe.recife.marcapagina.ui.nav.Route
 import com.ifpe.recife.marcapagina.ui.viewmodel.SearchViewModel
 
 @Composable
 fun SearchPage(
     modifier: Modifier = Modifier,
-    viewModel: SearchViewModel = viewModel()
+    viewModel: SearchViewModel = viewModel(),
+    navController: NavController? = null
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -76,7 +80,17 @@ fun SearchPage(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(viewModel.books) { book ->
-                    BookItem(book)
+                    BookItem(book) {
+                        if (navController != null) {
+                            val encodedTitle = Uri.encode(book.title)
+                            val encodedAuthor = Uri.encode(book.getAuthors())
+                            val safeCoverId = book.coverId?.toString() ?: "-1"
+
+                            navController.navigate(
+                                Route.Details.createRoute(encodedTitle, encodedAuthor, safeCoverId)
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -84,11 +98,12 @@ fun SearchPage(
 }
 
 @Composable
-fun BookItem(book: BookDto) {
+fun BookItem(book: BookDto, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp),
+            .height(120.dp)
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(

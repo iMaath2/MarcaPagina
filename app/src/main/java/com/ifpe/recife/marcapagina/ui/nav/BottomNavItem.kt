@@ -10,6 +10,12 @@ sealed class Route(val route: String) {
     object Home : Route("home")
     object Search : Route("search")
     object Profile : Route("profile")
+
+    object Details : Route("details/{title}/{author}/{coverId}") {
+        fun createRoute(title: String, author: String, coverId: String): String {
+            return "details/$title/$author/$coverId"
+        }
+    }
 }
 
 sealed class BottomNavItem(

@@ -1,3 +1,5 @@
+import java.util.Properties;
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,6 +14,7 @@ android {
     }
 
     defaultConfig {
+        android.buildFeatures.buildConfig = true
         applicationId = "com.ifpe.recife.marcapagina"
         minSdk = 30
         targetSdk = 36
@@ -19,6 +22,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        val keyFile = project.rootProject.file("local.properties")
+        val props = Properties()
+        props.load(keyFile.inputStream())
+        buildConfigField ("String", "WEATHER_API_KEY",
+            props.getProperty("WEATHER_API_KEY"))
+
     }
 
     buildTypes {
@@ -67,4 +76,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation ("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation ("com.squareup.retrofit2:converter-gson:3.0.0")
+
 }
