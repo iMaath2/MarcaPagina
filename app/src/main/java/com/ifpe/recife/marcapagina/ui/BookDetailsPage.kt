@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -35,11 +36,14 @@ fun BookDetailsPage(
 ) {
     val context = LocalContext.current
 
-    val coverUrl = if (coverId != "-1") {
+    val coverUrl = if (coverId != "-1" && coverId != "null") {
         "https://covers.openlibrary.org/b/id/$coverId-L.jpg"
     } else {
         "https://via.placeholder.com/300x450.png?text=Sem+Capa"
     }
+
+    val statusOptions = listOf("Quero Ler", "Lendo", "Lido")
+    var selectedStatus by remember { mutableStateOf("Quero Ler") }
 
     Scaffold(
         topBar = {
@@ -61,11 +65,17 @@ fun BookDetailsPage(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Card(elevation = CardDefaults.cardElevation(8.dp), shape = RoundedCornerShape(8.dp)) {
+            Card(
+                elevation = CardDefaults.cardElevation(8.dp),
+                shape = RoundedCornerShape(8.dp)
+            ) {
                 AsyncImage(
                     model = coverUrl,
-                    contentDescription = null,
-                    modifier = Modifier.width(200.dp).height(300.dp).clip(RoundedCornerShape(8.dp)),
+                    contentDescription = "Capa do livro $title",
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(300.dp)
+                        .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -91,22 +101,64 @@ fun BookDetailsPage(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            Text(
+                text = "Status da Leitura:",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                statusOptions.forEach { status ->
+                    val isSelected = status == selectedStatus
+
+                    OutlinedButton(
+                        onClick = { selectedStatus = status },
+                        colors = if (isSelected) {
+                            ButtonDefaults.outlinedButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        } else {
+                            ButtonDefaults.outlinedButtonColors()
+                        }
+                    ) {
+                        Text(text = status)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
             Button(
                 onClick = {
-                    // Cria objeto para salvar
                     val bookToSave = SavedBook(
                         id = "$title-$author".hashCode().toString(),
                         title = title,
                         author = author,
-                        coverUrl = coverUrl
+                        coverUrl = coverUrl,
+                        status = selectedStatus
                     )
-                    viewModel.saveBook(bookToSave) {
-                        Toast.makeText(context, "Livro adicionado à estante!", Toast.LENGTH_SHORT).show()
-                    }
+
+                    viewModel.saveBook(
+                        book = bookToSave,
+                        onSuccess = {
+                            Toast.makeText(context, "Livro salvo em '$selectedStatus'!", Toast.LENGTH_SHORT).show()
+                        },
+                        onFailure = { erro ->
+                            Toast.makeText(context, "Erro ao salvar: $erro", Toast.LENGTH_LONG).show()
+                        }
+                    )
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
             ) {
-                Text("Adicionar à Minha Estante")
+                Text("Adicionar à Minha Estante", fontSize = 18.sp)
             }
         }
     }

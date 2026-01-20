@@ -38,8 +38,14 @@ class LibraryViewModel : ViewModel() {
             }
     }
 
-    fun saveBook(book: SavedBook, onSuccess: () -> Unit) {
-        val userId = auth.currentUser?.uid ?: return
+    fun saveBook(book: SavedBook, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        val userId = auth.currentUser?.uid
+
+        if (userId == null) {
+            onFailure("Usuário não está logado.")
+            return
+        }
+
         val bookToSave = book.copy(userId = userId)
 
         db.collection("users").document(userId).collection("books")
@@ -49,7 +55,7 @@ class LibraryViewModel : ViewModel() {
                 onSuccess()
             }
             .addOnFailureListener { e ->
-                Log.w("LibraryViewModel", "Erro ao salvar", e)
+                onFailure(e.message ?: "Erro desconhecido ao salvar")
             }
     }
 
@@ -60,10 +66,26 @@ class LibraryViewModel : ViewModel() {
             .document(bookId)
             .delete()
             .addOnSuccessListener {
-                onSuccess() //
+                onSuccess()
             }
             .addOnFailureListener { e ->
-                onFailure(e.message ?: "Erro ao remover livro")
+                onFailure(e.message ?: "Erro ao remover")
+            }
+    }
+
+    fun updateBookProgress(bookId: String, current: Int, total: Int) {
+        val userId = auth.currentUser?.uid ?: return
+
+        db.collection("users").document(userId).collection("books")
+            .document(bookId)
+            .update(
+                mapOf(
+                    "currentPage" to current,
+                    "totalPages" to total
+                )
+            )
+            .addOnFailureListener { e ->
+                Log.w("LibraryViewModel", "Erro ao atualizar progresso", e)
             }
     }
 }

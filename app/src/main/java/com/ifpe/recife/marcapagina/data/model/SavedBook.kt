@@ -5,5 +5,9 @@ data class SavedBook(
     val title: String = "",
     val author: String = "",
     val coverUrl: String = "",
-    val userId: String = ""
+    val userId: String = "",
+    val status: String = "Quero ler",
+    val currentPage: Int = 0,
+    val totalPages: Int = 0
+
 )
